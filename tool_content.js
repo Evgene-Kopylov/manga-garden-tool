@@ -210,20 +210,38 @@ const tool = {
 			
 			logo.addEventListener('mousedown', function(e) {
 				isDragging = true;
-				startX = e.clientX;
-				startY = e.clientY;
 				
 				// Получаем текущие координаты окна
 				const rect = div.getBoundingClientRect();
-				startLeft = rect.left;
-				startTop = rect.top;
 				
-				// Меняем позиционирование на absolute для перетаскивания
-				div.style.position = 'absolute';
-				div.style.bottom = 'auto';
-				div.style.right = 'auto';
-				div.style.left = startLeft + 'px';
-				div.style.top = startTop + 'px';
+				// Вычисляем смещение курсора внутри окна
+				// Используем pageX/Y для абсолютных координат курсора
+				const offsetX = e.pageX - rect.left - window.pageXOffset;
+				const offsetY = e.pageY - rect.top - window.pageYOffset;
+				
+				// Сохраняем смещение для использования в mousemove
+				div.dataset.dragOffsetX = offsetX;
+				div.dataset.dragOffsetY = offsetY;
+				
+				// Сохраняем текущее позиционирование
+				const currentPosition = window.getComputedStyle(div).position;
+				if (currentPosition === 'fixed') {
+					// Если окно fixed, переключаем на absolute для перетаскивания
+					// Для absolute позиционирования используем pageX/Y координаты
+					div.style.position = 'absolute';
+					div.style.bottom = 'auto';
+					div.style.right = 'auto';
+					div.style.left = (e.pageX - offsetX) + 'px';
+					div.style.top = (e.pageY - offsetY) + 'px';
+				} else {
+					// Если уже absolute, обновляем смещение для текущей позиции
+					const currentLeft = parseInt(div.style.left) || rect.left + window.pageXOffset;
+					const currentTop = parseInt(div.style.top) || rect.top + window.pageYOffset;
+					
+					// Пересчитываем смещение для текущей позиции окна
+					div.dataset.dragOffsetX = e.pageX - currentLeft;
+					div.dataset.dragOffsetY = e.pageY - currentTop;
+				}
 				
 				e.preventDefault();
 				e.stopPropagation();
@@ -233,11 +251,15 @@ const tool = {
 			document.addEventListener('mousemove', function(e) {
 				if (!isDragging) return;
 				
-				const deltaX = e.clientX - startX;
-				const deltaY = e.clientY - startY;
+				const offsetX = parseFloat(div.dataset.dragOffsetX) || 0;
+				const offsetY = parseFloat(div.dataset.dragOffsetY) || 0;
 				
-				div.style.left = (startLeft + deltaX) + 'px';
-				div.style.top = (startTop + deltaY) + 'px';
+				// Позиционируем окно так, чтобы курсор оставался на том же месте относительно окна
+				// Используем pageX/Y для абсолютных координат
+				div.style.left = (e.pageX - offsetX) + 'px';
+				div.style.top = (e.pageY - offsetY) + 'px';
+				
+				e.preventDefault();
 			});
 			
 			document.addEventListener('mouseup', function(e) {
