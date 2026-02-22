@@ -1,19 +1,21 @@
 
 function setActive() {
-	chrome.browserAction.setIcon( { path: 'images/btn_16.png' } );
-	chrome.browserAction.setTitle( { title: 'Click to select element' });
+	chrome.action.setIcon( { path: 'images/btn_16.png' } );
+	chrome.action.setTitle( { title: 'Click to select element' });
 }
 
 function setInactive() {
-	chrome.browserAction.setIcon( { path: 'images/btn_48.png' } );
-	chrome.browserAction.setTitle( { title: 'Click to select element' });
+	chrome.action.setIcon( { path: 'images/btn_48.png' } );
+	chrome.action.setTitle( { title: 'Click to select element' });
 }
 
 function checkActive() {
-	chrome.tabs.getSelected(null, function(tab) {
+	chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
+		if (!tabs || tabs.length === 0) return;
+		const tab = tabs[0];
 		if (!tab || tab.id < 0) return; // not really a tab, most likely a devtools window
 
-		chrome.browserAction.enable(tab.id);
+		chrome.action.enable(tab.id);
 
 		
 		chrome.tabs.sendMessage(tab.id, { action: 'getStatus' }, function(isActive) {
@@ -30,28 +32,35 @@ function checkActive() {
 
 
 chrome.contextMenus.create({
+  id: 'manga-garden-menu',
   contexts: ['all'],
-  title: 'manga.garden',
-  onclick: function(info, tab) {
-	chrome.tabs.getSelected(null, function(tab) {
-		chrome.tabs.sendMessage(tab.id, { 'action': 'rmb_event' }, function(response) {
-			if (chrome.runtime.lastError) {
-				// lastError needs to be checked, otherwise Chrome may throw an error
-			}
-
-			if (!response) {
-				chrome.tabs.executeScript(tab.id, {
-					// code: "if (confirm('This tab was loaded before Manga.garden Extension was installed. Would you like to reload it?\\nThis is necessary only the first time.')) location.reload();"
-					code: "location.reload();"
-				});
-			}
-		});
-	});
-  }
+  title: 'manga.garden'
 });
 
 
-chrome.extension.onMessage.addListener(function(msg, sender, sendResponse) {
+chrome.contextMenus.onClicked.addListener(function(info, tab) {
+	if (info.menuItemId === 'manga-garden-menu') {
+		chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
+			if (!tabs || tabs.length === 0) return;
+			const tab = tabs[0];
+			
+			chrome.tabs.sendMessage(tab.id, { 'action': 'rmb_event' }, function(response) {
+				if (chrome.runtime.lastError) {
+					// lastError needs to be checked, otherwise Chrome may throw an error
+				}
+
+				if (!response) {
+					chrome.scripting.executeScript({
+						target: { tabId: tab.id },
+						func: () => location.reload()
+					});
+				}
+			});
+		});
+	}
+});
+
+chrome.runtime.onMessage.addListener(function(msg, sender, sendResponse) {
 	if (msg.action == 'status' && msg.active == true) {
 		setActive();
 	} else if (msg.action == 'status' && msg.active == false) {
@@ -59,13 +68,19 @@ chrome.extension.onMessage.addListener(function(msg, sender, sendResponse) {
 	}
 
 	if (msg.action == 'get_saved_elms') {
-		sendResponse(localStorage['web:' + msg.website] || '[]');
+		chrome.storage.local.get(['web:' + msg.website], function(result) {
+			sendResponse(result['web:' + msg.website] || '[]');
+		});
+		return true; // Keep message channel open for async response
 	} else if (msg.action == 'set_saved_elms') {
-		localStorage['web:' + msg.website] = msg.data;
+		chrome.storage.local.set({ ['web:' + msg.website]: msg.data });
 	} else if (msg.action == 'get_settings') {
-		sendResponse(localStorage['settings'] || '{}');
+		chrome.storage.local.get(['settings'], function(result) {
+			sendResponse(result.settings || '{}');
+		});
+		return true; // Keep message channel open for async response
 	} else if (msg.action == 'set_settings') {
-		localStorage['settings'] = msg.data;
+		chrome.storage.local.set({ settings: msg.data });
 	}
 });
 

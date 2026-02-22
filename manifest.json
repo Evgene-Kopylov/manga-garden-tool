@@ -1,7 +1,7 @@
 {
 	"name": "__MSG_extensionName__",
-	"version": "0.0.2.1",
-	"manifest_version": 2,
+	"version": "0.0.3.0",
+	"manifest_version": 3,
 	"default_locale":"ru", 
 	"description": "__MSG_extensionDescription__",
 	"icons": {
@@ -9,12 +9,12 @@
 		"48": "images/btn_48.png",
 		"16": "images/btn_16.png"
 	},
-	"browser_action": {
+	"action": {
 		"default_icon": "images/btn_48.png"
 	},
 
 	"background": {
-   		"scripts": ["background.js"]
+   		"service_worker": "background.js"
 	},
 
 	"content_scripts": [ {
@@ -28,11 +28,21 @@
 	} ],
 	"permissions": [
 	    "contextMenus",
-	    "http://*/*", 
+	    "scripting",
+	    "activeTab"
+	],
+	"host_permissions": [
+		"http://*/*", 
 		"https://*/*"
 	],
 	
-	"web_accessible_resources": [ 
-		"tool_wnd/tool.html"
-	]
+	"web_accessible_resources": [{
+		"resources": [ 
+			"tool_wnd/tool.html",
+			"tool_wnd/tool.css"
+		],
+		"matches": [ 
+			"http://*/*", 
+			"https://*/*" ]
+	}]
 }

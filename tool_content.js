@@ -170,7 +170,7 @@ const tool = {
 	},
 	
 	activate: function() {
-        fetch(chrome.runtime.getURL('/tool_wnd/tool.html')).then(r => r.text()).then(html => {
+        fetch(chrome.runtime.getURL('tool_wnd/tool.html')).then(r => r.text()).then(html => {
             document.body.insertAdjacentHTML('afterend', html);
             // not using innerHTML as it would break js event listeners of the page
             let div = document.getElementById("tool_wnd");
@@ -207,7 +207,7 @@ const tool = {
 
 			tool.updateElementList();
 			
-			chrome.extension.sendMessage({action: 'status', active: true});
+			chrome.runtime.sendMessage({action: 'status', active: true});
 		});
 	},
 	
@@ -229,7 +229,7 @@ const tool = {
 
 		tool.helpWindow.parentNode.removeChild(tool.helpWindow);
 		
-		chrome.extension.sendMessage({action: 'status', active: false});
+		chrome.runtime.sendMessage({action: 'status', active: false});
 	},
 	
 	toggle: function() {
@@ -241,7 +241,7 @@ const tool = {
 		document.addEventListener('keydown', tool.keyDown);
 		document.addEventListener('keyup', tool.keyUp);
 		
-		chrome.extension.onMessage.addListener(function(msg, sender, responseFun) {
+		chrome.runtime.onMessage.addListener(function(msg, sender, responseFun) {
 			if (msg.action == "toggle") {
 				tool.toggle();
 				responseFun(2.0);
