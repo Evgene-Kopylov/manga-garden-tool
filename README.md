@@ -36,12 +36,12 @@
 
 ## Настройка
 
-Переменная `MANGA_TRACKER_URL` в `tool_content.js` содержит URL домашней страницы для отправки данных.
+Переменная `MANGA_TRACKER_URL` в `tool_content.js` содержит URL для отправки данных на manga.garden. По умолчанию установлен `http://localhost:8000/add_page`.
 
 ## Версия
 
 Текущая версия: 1.0.0 (Manifest V3)
 
-## Лицензия
+## Лицензия GNUv3
 
 См. файл LICENSE

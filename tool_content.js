@@ -346,6 +346,10 @@ const tool = {
 				tool.select_Target(RMB_TARGET)
 			}
 
+			if (msg.action == "reload_page") {
+				location.reload();
+			}
+
 		});
 	}
 }

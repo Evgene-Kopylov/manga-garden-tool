@@ -50,10 +50,8 @@ chrome.contextMenus.onClicked.addListener(function(info, tab) {
 				}
 
 				if (!response) {
-					chrome.scripting.executeScript({
-						target: { tabId: tab.id },
-						func: () => location.reload()
-					});
+					// Отправляем сообщение контент-скрипту для перезагрузки
+					chrome.tabs.sendMessage(tab.id, { 'action': 'reload_page' });
 				}
 			});
 		});
