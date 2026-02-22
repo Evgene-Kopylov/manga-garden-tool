@@ -204,11 +204,19 @@ const tool = {
 			}
 			
 			// Добавление функционала перетаскивания
-			const logo = div.querySelector('.ct_logo');
 			let isDragging = false;
-			let startX, startY, startLeft, startTop;
 			
-			logo.addEventListener('mousedown', function(e) {
+			div.addEventListener('mousedown', function(e) {
+				// Проверяем, что клик не на кнопках или других элементах управления
+				if (e.target.closest('button') || e.target.closest('.ct_close') || e.target.closest('.send_selected')) {
+					return;
+				}
+				
+				// Проверяем, что клик не на текстовых полях для выделения
+				if (e.target.closest('#tool_clicked_elm') || e.target.closest('#tool_selected_elm')) {
+					return;
+				}
+				
 				isDragging = true;
 				
 				// Получаем текущие координаты окна

@@ -14,6 +14,7 @@
     padding: 10px;
     text-align: center;
     z-index: 2147483647;
+    cursor: move;
 
 }
 #tool_wnd * {
@@ -31,7 +32,6 @@
 }
 #tool_wnd .ct_logo { 
     font-size: 18px; 
-    cursor: move;
     user-select: none;
     display: block;
     margin-bottom: 10px;
@@ -60,7 +60,11 @@
     border-width: 12px 0 12px 0; 
     max-height: 84px; 
     overflow: hidden;
-    color: black; 
+    color: black;
+    user-select: text;
+    -webkit-user-select: text;
+    -moz-user-select: text;
+    -ms-user-select: text;
 }
 
 #tool_wnd > div > button.shorter,
