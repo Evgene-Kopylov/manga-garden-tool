@@ -33,6 +33,8 @@
 }
 #tool_wnd .ct_logo { 
     font-size: 18px; 
+    cursor: move;
+    user-select: none;
 }
 #tool_wnd .ct_logo.small { display: none; }
 #tool_wnd .ct_logo svg {

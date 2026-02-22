@@ -203,6 +203,64 @@ const tool = {
 				});
 			}
 			
+			// Добавление функционала перетаскивания
+			const logo = div.querySelector('.ct_logo');
+			let isDragging = false;
+			let startX, startY, startLeft, startTop;
+			
+			logo.addEventListener('mousedown', function(e) {
+				isDragging = true;
+				startX = e.clientX;
+				startY = e.clientY;
+				
+				// Получаем текущие координаты окна
+				const rect = div.getBoundingClientRect();
+				startLeft = rect.left;
+				startTop = rect.top;
+				
+				// Меняем позиционирование на absolute для перетаскивания
+				div.style.position = 'absolute';
+				div.style.bottom = 'auto';
+				div.style.right = 'auto';
+				div.style.left = startLeft + 'px';
+				div.style.top = startTop + 'px';
+				
+				e.preventDefault();
+				e.stopPropagation();
+				return false;
+			});
+			
+			document.addEventListener('mousemove', function(e) {
+				if (!isDragging) return;
+				
+				const deltaX = e.clientX - startX;
+				const deltaY = e.clientY - startY;
+				
+				div.style.left = (startLeft + deltaX) + 'px';
+				div.style.top = (startTop + deltaY) + 'px';
+			});
+			
+			document.addEventListener('mouseup', function(e) {
+				if (isDragging) {
+					isDragging = false;
+					
+					// После перетаскивания оставляем absolute позиционирование
+					// с новыми координатами
+					e.stopPropagation();
+					e.preventDefault();
+					return false;
+				}
+			});
+			
+			// Предотвращаем закрытие окна при клике внутри него
+			div.addEventListener('mousedown', function(e) {
+				e.stopPropagation();
+			});
+			
+			div.addEventListener('click', function(e) {
+				e.stopPropagation();
+			});
+			
 			tool.helpWindow = div;
 
 			tool.updateElementList();
